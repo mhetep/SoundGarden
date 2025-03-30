@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Garden - Grow Plants with Your Voice</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Audio Garden</h1>
+      <p>Speak, sing, or make sounds to grow your unique digital garden</p>
+    </header>
+    
+    <div class="controls">
+      <button id="startButton" class="btn primary">Start Listening</button>
+      <button id="clearButton" class="btn secondary">Clear Garden</button>
+    </div>
+    
+    <div class="info-panel">
+      <p id="statusMessage">Welcome! Click "Start Listening" and speak to grow plants.</p>
+      <div class="legend">
+        <h3>Plant Types</h3>
+        <ul>
+          <li><span class="color-dot" style="background-color: #FF6B6B;"></span> Flowers - Low frequencies</li>
+          <li><span class="color-dot" style="background-color: #4ECDC4;"></span> Bushes - Low-mid frequencies</li>
+          <li><span class="color-dot" style="background-color: #6B48FF;"></span> Trees - Mid frequencies</li>
+          <li><span class="color-dot" style="background-color: #FFD166;"></span> Mushrooms - Mid-high frequencies</li>
+          <li><span class="color-dot" style="background-color: #06D6A0;"></span> Cacti - High frequencies</li>
+        </ul>
+        <p class="hint">Louder sounds create larger plants!</p>
+      </div>
+    </div>
+    
+    <canvas id="gardenCanvas"></canvas>
+    
+    <footer>
+      <p>Your garden is automatically saved in your browser.</p>
+      <p>Created by [Your Name] - Experimental Web Technology Project</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
