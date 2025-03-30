@@ -213,8 +213,8 @@ const AudioGarden = {
     
     // Draw background gradient
     const gradient = this.ctx.createLinearGradient(0, 0, 0, this.config.canvasHeight);
-    gradient.addColorStop(0, '#87CEEB');
-    gradient.addColorStop(1, '#E0F7FA');
+    gradient.addColorStop(0, 'brown');
+    gradient.addColorStop(1, 'brown');
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.config.canvasWidth, this.config.canvasHeight);
     
