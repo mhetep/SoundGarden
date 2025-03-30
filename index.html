@@ -3,42 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Garden - Grow Plants with Your Voice</title>
+  <title>Audio Garden - A Sonic Ecosystem</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
+    <div class="vines-overlay"></div>
+    <div class="ambient-light"></div>
+    
     <header>
       <h1>Audio Garden</h1>
-      <p>Speak, sing, or make sounds to grow your unique digital garden</p>
+      <p>Breathe life into a wild ecosystem with your voice</p>
     </header>
     
     <div class="controls">
-      <button id="startButton" class="btn primary">Start Listening</button>
-      <button id="clearButton" class="btn secondary">Clear Garden</button>
+      <button id="startButton" class="btn primary">Begin Listening</button>
+      <button id="clearButton" class="btn secondary">Clear Canvas</button>
     </div>
     
     <div class="info-panel">
-      <p id="statusMessage">Welcome! Click "Start Listening" and speak to grow plants.</p>
+      <p id="statusMessage">Whisper, sing, or speak to cultivate your living soundscape...</p>
       <div class="legend">
-        <h3>Plant Types</h3>
+        <h3>Flora Types</h3>
         <ul>
-          <li><span class="color-dot" style="background-color: #FF6B6B;"></span> Flowers - Low frequencies</li>
-          <li><span class="color-dot" style="background-color: #4ECDC4;"></span> Bushes - Low-mid frequencies</li>
-          <li><span class="color-dot" style="background-color: #6B48FF;"></span> Trees - Mid frequencies</li>
-          <li><span class="color-dot" style="background-color: #FFD166;"></span> Mushrooms - Mid-high frequencies</li>
-          <li><span class="color-dot" style="background-color: #06D6A0;"></span> Cacti - High frequencies</li>
+          <li><span class="color-dot" style="background-color: #B86A6A;"></span> Midnight Blooms - Low tones</li>
+          <li><span class="color-dot" style="background-color: #4D908E;"></span> Wild Vines - Low-mid tones</li>
+          <li><span class="color-dot" style="background-color: #6A5CB8;"></span> Shimmer Trees - Mid tones</li>
+          <li><span class="color-dot" style="background-color: #D4A365;"></span> Luminous Fungi - Mid-high tones</li>
+          <li><span class="color-dot" style="background-color: #069A74;"></span> Desert Stars - High tones</li>
         </ul>
-        <p class="hint">Louder sounds create larger plants!</p>
+        <p class="hint">Volume shapes their form, pitch determines their nature</p>
       </div>
     </div>
     
     <canvas id="gardenCanvas"></canvas>
-    
-    <footer>
-      <p>Your garden is automatically saved in your browser.</p>
-      <p>Created by [Your Name] - Experimental Web Technology Project</p>
-    </footer>
   </div>
 
   <script src="script.js"></script>
