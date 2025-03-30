@@ -1,45 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Garden - A Sonic Ecosystem</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <div class="vines-overlay"></div>
-    <div class="ambient-light"></div>
-    
-    <header>
-      <h1>Audio Garden</h1>
-      <p>Breathe life into a wild ecosystem with your voice</p>
-    </header>
-    
-    <div class="controls">
-      <button id="startButton" class="btn primary">Begin Listening</button>
-      <button id="clearButton" class="btn secondary">Clear Canvas</button>
-    </div>
-    
-    <div class="info-panel">
-      <p id="statusMessage">Whisper, sing, or speak to cultivate your living soundscape...</p>
-      <div class="legend">
-        <h3>Flora Types</h3>
-        <ul>
-          <li><span class="color-dot" style="background-color: #B86A6A;"></span> Midnight Blooms - Low tones</li>
-          <li><span class="color-dot" style="background-color: #4D908E;"></span> Wild Vines - Low-mid tones</li>
-          <li><span class="color-dot" style="background-color: #6A5CB8;"></span> Shimmer Trees - Mid tones</li>
-          <li><span class="color-dot" style="background-color: #D4A365;"></span> Luminous Fungi - Mid-high tones</li>
-          <li><span class="color-dot" style="background-color: #069A74;"></span> Desert Stars - High tones</li>
-        </ul>
-        <p class="hint">Volume shapes their form, pitch determines their nature</p>
-      </div>
-    </div>
-    
-    <canvas id="gardenCanvas"></canvas>
-  </div>
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  <script src="script.js"></script>
-</body>
-</html>
+body {
+  font-family: 'Playfair Display', Georgia, serif;
+  background-color: #6b4f31; /* Brown color like dirt */
+  background-image: url('dirt-texture.png'); /* Add dirt texture image */
+  background-size: cover;
+  background-position: center;
+  color: #e6e0d4;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: flex-start; /* Align to the left */
+  padding: 10px 20px; /* Adjusted padding for better appearance */
+  background-color: rgba(10, 10, 10, 0.7);
+  z-index: 10;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: absolute;
+  top: 0; /* Push header to the top */
+  width: 100%;
+}
+
+h1 {
+  font-size: 3rem;
+  color: #d4b36a;
+  margin-bottom: 5px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+header p {
+  font-size: 1.1rem;
+  color: #a09683;
+  font-style: italic;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 15px;
+  background-color: rgba(10, 10, 10, 0.7);
+  z-index: 10;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: 1px solid rgba(212, 179, 106, 0.4);
+  background-color: transparent;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  color: #d4b36a;
+  transform: scale(1);
+}
+
+.btn:hover {
+  background-color: rgba(212, 179, 106, 0.2);
+  transform: scale(1.05);
+}
+
+/* Info panel */
+.info-panel {
+  position: absolute;
+  top: 150px;
+  right: 20px;
+  width: 250px;
+  background-color: rgba(10, 10, 10, 0.7);
+  padding: 20px;
+  border-left: 1px solid rgba(212, 179, 106, 0.4);
+  z-index: 20;
+}
+
+#statusMessage {
+  margin-bottom: 15px;
+  font-style: italic;
+  color: #a09683;
+}
+
+/* Overgrown Garden Aesthetic */
+.vines-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40%;
+  background: url('overgrown-garden.png') no-repeat bottom center;
+  background-size: cover;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 5;
+  animation: sway 6s infinite ease-in-out alternate;
+}
+
+@keyframes sway {
+  from { transform: translateX(-2%); }
+  to { transform: translateX(2%); }
+}
+
+/* Ambient light effect */
+.ambient-light {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 70%, rgba(255, 240, 200, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
+  pointer-events: none;
+  z-index: 2;
+  animation: glowPulse 5s infinite alternate;
+}
+
+@keyframes glowPulse {
+  from { opacity: 0.05; }
+  to { opacity: 0.12; }
+}
+
+/* Audio Listening Toggle */
+.btn#audioListeningToggle {
+  padding: 12px 24px;
+  border: 1px solid rgba(212, 179, 106, 0.4);
+  background-color: transparent;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  color: #d4b36a;
+  transform: scale(1);
+}
+
+.btn#audioListeningToggle:hover {
+  background-color: rgba(212, 179, 106, 0.2);
+  transform: scale(1.05);
+}
+
+/* Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  padding-top: 60px; /* Adjusted padding for more garden space */
+}
+
+/* JavaScript to toggle audio listening */
+<script>
+  const audioListeningToggle = document.getElementById('audioListeningToggle');
+  let isListening = false;
+
+  // Assuming the garden has an audio recognition feature
+  function startListening() {
+    // Start the garden's audio listening functionality here
+    console.log("Garden is now listening.");
+    // Add the relevant functionality to make the garden listen to audio
+  }
+
+  function stopListening() {
+    // Stop the garden's audio listening functionality here
+    console.log("Garden is no longer listening.");
+    // Add the relevant functionality to stop the audio detection
+  }
+
+  audioListeningToggle.addEventListener('click', () => {
+    isListening = !isListening;
+    if (isListening) {
+      startListening();
+    } else {
+      stopListening();
+    }
+  });
+</script>
+
+<!-- HTML for Audio Listening toggle button -->
+<button class="btn" id="audioListeningToggle">Toggle Audio Listening</button>
