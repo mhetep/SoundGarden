@@ -1,45 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Garden - A Sonic Ecosystem</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overgrown Garden</title>
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0a0a0a;
+            font-family: 'Playfair Display', Georgia, serif;
+            color: #e6e0d4;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: rgba(212, 179, 106, 0.4);
+            border: none;
+            font-size: 1rem;
+            color: #d4b36a;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background-color: rgba(212, 179, 106, 0.2);
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="vines-overlay"></div>
-    <div class="ambient-light"></div>
-    
-    <header>
-      <h1>Audio Garden</h1>
-      <p>Breathe life into a wild ecosystem with your voice</p>
-    </header>
-    
     <div class="controls">
-      <button id="startButton" class="btn primary">Begin Listening</button>
-      <button id="clearButton" class="btn secondary">Clear Canvas</button>
+        <button class="btn" onclick="toggleAudio()">Toggle Audio</button>
     </div>
-    
-    <div class="info-panel">
-      <p id="statusMessage">Whisper, sing, or speak to cultivate your living soundscape...</p>
-      <div class="legend">
-        <h3>Flora Types</h3>
-        <ul>
-          <li><span class="color-dot" style="background-color: #B86A6A;"></span> Midnight Blooms - Low tones</li>
-          <li><span class="color-dot" style="background-color: #4D908E;"></span> Wild Vines - Low-mid tones</li>
-          <li><span class="color-dot" style="background-color: #6A5CB8;"></span> Shimmer Trees - Mid tones</li>
-          <li><span class="color-dot" style="background-color: #D4A365;"></span> Luminous Fungi - Mid-high tones</li>
-          <li><span class="color-dot" style="background-color: #069A74;"></span> Desert Stars - High tones</li>
-        </ul>
-        <p class="hint">Volume shapes their form, pitch determines their nature</p>
-      </div>
-    </div>
-    
-    <canvas id="gardenCanvas"></canvas>
-  </div>
 
-  <script src="script.js"></script>
+    <!-- Three.js Canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Load Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/libs/stats.min.js"></script>
+
+    <script>
+        let scene, camera, renderer, plants = [], audioContext, analyser, audioSource, listener;
+        let isAudioPlaying = false;
+        const canvas = document.getElementById('three-canvas');
+
+        // Set up the Three.js scene
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Add a dirt texture ground
+            const groundTexture = new THREE.TextureLoader().load('https://example.com/dirt-texture.jpg'); // replace with your dirt texture path
+            const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+            const groundMaterial = new THREE.MeshBasicMaterial({ map: groundTexture, side: THREE.DoubleSide });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = Math.PI / -2;
+            scene.add(ground);
+
+            // Add lighting
+            const light = new THREE.PointLight(0xffffff, 1, 1000);
+            light.position.set(0, 50, 50);
+            scene.add(light);
+
+            // Setup camera position
+            camera.position.y = 50;
+            camera.position.z = 100;
+
+            // Load 3D plant models (e.g., flowers, cacti, vines)
+            loadPlantModels();
+
+            // Set up audio context for sound analysis
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            listener = new THREE.AudioListener();
+            camera.add(listener);
+
+            // Start the animation loop
+            animate();
+        }
+
+        // Load 3D models for plants (flowers, vines, cacti)
+        function loadPlantModels() {
+            const loader = new THREE.GLTFLoader();
+            const plantUrls = [
+                'https://example.com/flower-model.glb',  // Replace with actual URL of a flower model
+                'https://example.com/cactus-model.glb'  // Replace with actual URL of a cactus model
+            ];
+
+            plantUrls.forEach(url => {
+                loader.load(url, function(gltf) {
+                    const plant = gltf.scene;
+                    plant.scale.set(5, 5, 5); // Adjust plant size
+                    plant.position.set(Math.random() * 100 - 50, 0, Math.random() * 100 - 50); // Random positioning
+                    scene.add(plant);
+                    plants.push(plant);
+                });
+            });
+        }
+
+        // Toggle audio on/off
+        function toggleAudio() {
+            if (isAudioPlaying) {
+                audioSource.stop();
+                isAudioPlaying = false;
+            } else {
+                const audioElement = new Audio('path_to_your_audio_file.mp3');  // Replace with the actual path to your audio file
+                audioSource = audioContext.createMediaElementSource(audioElement);
+                audioSource.connect(analyser);
+                analyser.connect(audioContext.destination);
+                audioElement.play();
+                isAudioPlaying = true;
+            }
+        }
+
+        // Animate plants based on sound input
+        function animate() {
+            requestAnimationFrame(animate);
+
+            analyser.getByteFrequencyData(new Uint8Array(analyser.frequencyBinCount));
+
+            let volume = 0;
+            const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(frequencyData);
+
+            frequencyData.forEach(value => {
+                volume += value;
+            });
+
+            volume = volume / frequencyData.length;
+
+            // Make plants grow and sway based on volume
+            plants.forEach(plant => {
+                plant.scale.y = 1 + volume / 500; // Grow plants based on sound volume
+                plant.rotation.y += 0.01; // Sway plants
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // Resize the canvas when the window size changes
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialize the scene
+        init();
+    </script>
 </body>
 </html>
