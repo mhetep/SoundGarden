@@ -21,12 +21,12 @@ const AudioGarden = {
   
     // Plant types based on frequency ranges
     plantTypes: [
-      { name: 'flower', minFreq: 0, maxFreq: 200, color: '#FF6B6B' },
-      { name: 'bush', minFreq: 201, maxFreq: 500, color: '#4ECDC4' },
-      { name: 'tree', minFreq: 501, maxFreq: 1000, color: '#6B48FF' },
-      { name: 'mushroom', minFreq: 1001, maxFreq: 2000, color: '#FFD166' },
-      { name: 'cactus', minFreq: 2001, maxFreq: 20000, color: '#06D6A0' }
-    ],
+        { name: 'flower', minFreq: 0, maxFreq: 300, color: '#FF6B6B' }, // Increased flower range
+        { name: 'bush', minFreq: 301, maxFreq: 600, color: '#4ECDC4' }, // Adjusted bush range
+        { name: 'tree', minFreq: 601, maxFreq: 1100, color: '#6B48FF' }, // Adjusted tree range
+        { name: 'mushroom', minFreq: 1101, maxFreq: 2500, color: '#FFD166' }, // Adjusted mushroom range
+        { name: 'cactus', minFreq: 2501, maxFreq: 20000, color: '#06D6A0' } // Adjusted cactus range
+      ],
   
     // Initialize the garden
     init: function() {
@@ -180,6 +180,15 @@ const AudioGarden = {
         segments: Math.floor(3 + (Math.random() * 5))
       };
   
+      // Adjust size based on volume (normalizedLevel)
+      const volumeFactor = this.lastAudioLevel * 1.5; // Adjust multiplier as needed
+      size *= (1 + volumeFactor); // Increase size based on volume
+  
+      const maxSize = 150; // Set maximum plant size
+      size = Math.min(size, maxSize); // Limit size to maximum
+  
+      plant.targetSize = size;
+  
       this.plants.push(plant);
     },
   
@@ -203,7 +212,7 @@ const AudioGarden = {
       const newB = Math.max(0, Math.min(255, b + (Math.random() * variance) - (variance / 2)));
   
       // Convert back to hex
-      return `#${Math.floor(newR).toString(16).padStart(2, '0')}${Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
+      return `#<span class="math-inline">\{Math\.floor\(newR\)\.toString\(16\)\.padStart\(2, '0'\)\}</span>{Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
     },
   
     // Animation loop
@@ -264,7 +273,8 @@ const AudioGarden = {
     // Draw flower
     drawFlower: function(plant) {
       const ctx = this.ctx;
-      const size = plant.currentSize;
+      let size = plant.currentSize;
+      size *= 1.15;
   
       // Stem
       ctx.beginPath();
@@ -416,7 +426,8 @@ const AudioGarden = {
     // Draw mushroom
     drawMushroom: function(plant) {
       const ctx = this.ctx;
-      const size = plant.currentSize;
+      let size = plant.currentSize;
+      size *= 1.2;
   
       // Stem
       ctx.beginPath();
