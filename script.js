@@ -212,10 +212,7 @@ const AudioGarden = {
     this.ctx.clearRect(0, 0, this.config.canvasWidth, this.config.canvasHeight);
     
     // Draw background gradient
-    const gradient = this.ctx.createLinearGradient(0, 0, 0, this.config.canvasHeight);
-    gradient.addColorStop(0, '#3e1c00');
-    gradient.addColorStop(1, '#3e1c00');
-    this.ctx.fillStyle = gradient;
+    background-color:rgb(39, 29, 29);
     this.ctx.fillRect(0, 0, this.config.canvasWidth, this.config.canvasHeight);
     
     // Draw ground
