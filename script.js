@@ -249,9 +249,6 @@ this.ctx.fillRect(0, 0, this.config.canvasWidth, this.config.canvasHeight);
       case 'bush':
         this.drawBush(plant);
         break;
-      case 'tree':
-        this.drawTree(plant);
-        break;
       case 'mushroom':
         this.drawMushroom(plant);
         break;
