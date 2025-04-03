@@ -111,7 +111,7 @@ const AudioGarden = {
         this.isListening = true;
         this.audioLevels = []; // Reset audio levels history
         document.getElementById('statusMessage').textContent = 'Listening to your sounds with enhanced sensitivity...';
-        document.getElementById('startButton').textContent = 'Listening...';
+        document.getElementById('startButton').textContent = 'Listening (Enhanced)...';
         this.monitorAudio();
       })
       .catch(err => {
