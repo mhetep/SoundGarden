@@ -7,10 +7,6 @@ const AudioGarden = {
     maxPlants: 50,
     growthSpeed: 0.5,
     saveInterval: 5000, // Save garden every 5 seconds
-    // Added audio sensitivity configuration
-    audioSensitivity: 3.0,     // Multiplier for audio sensitivity (higher = more sensitive)
-    baseThreshold: 0.05,       // Lower threshold to detect quieter sounds (was 0.15)
-    frequencyRange: [20, 20000] // Full audible frequency range
   },
 
   // State
@@ -22,7 +18,6 @@ const AudioGarden = {
   plants: [],
   isListening: false,
   lastAudioLevel: 0,
-  audioLevels: [], // Store recent audio levels for smoothing and trend detection
 
   // Plant types based on frequency ranges
   plantTypes: [
@@ -89,29 +84,18 @@ const AudioGarden = {
         // Create audio context
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Create analyzer with improved settings
+        // Create analyzer
         this.analyzer = this.audioContext.createAnalyser();
-        this.analyzer.fftSize = 4096; // Increased from 2048 for better frequency resolution
-        this.analyzer.smoothingTimeConstant = 0.6; // Reduced from default 0.8 for faster response
-        this.analyzer.minDecibels = -90; // Lower threshold to pick up quieter sounds (default is -100)
-        this.analyzer.maxDecibels = -10; // Upper threshold (default is -30)
+        this.analyzer.fftSize = 2048;
 
-        // Create microphone source with gain node for amplification
+        // Create microphone source
         this.microphone = this.audioContext.createMediaStreamSource(stream);
-        
-        // Add gain node to amplify the input signal
-        this.gainNode = this.audioContext.createGain();
-        this.gainNode.gain.value = 2.5; // Amplify input by 2.5x
-        
-        // Connect microphone -> gain -> analyzer
-        this.microphone.connect(this.gainNode);
-        this.gainNode.connect(this.analyzer);
+        this.microphone.connect(this.analyzer);
 
         // Start monitoring audio
         this.isListening = true;
-        this.audioLevels = []; // Reset audio levels history
-        document.getElementById('statusMessage').textContent = 'Listening to your sounds with enhanced sensitivity...';
-        document.getElementById('startButton').textContent = 'Listening (Enhanced)...';
+        document.getElementById('statusMessage').textContent = 'Listening to your sounds...';
+        document.getElementById('startButton').textContent = 'Listening...';
         this.monitorAudio();
       })
       .catch(err => {
@@ -120,7 +104,7 @@ const AudioGarden = {
       });
   },
 
-  // Monitor audio levels and frequencies with enhanced sensitivity
+  // Monitor audio levels and frequencies
   monitorAudio: function() {
     if (!this.isListening) return;
 
@@ -129,84 +113,39 @@ const AudioGarden = {
     const dataArray = new Uint8Array(bufferLength);
     this.analyzer.getByteFrequencyData(dataArray);
 
-    // Calculate weighted average with emphasis on certain frequency ranges
+    // Calculate average level
     let sum = 0;
     let dominantFrequencyBin = 0;
     let maxAmplitude = 0;
-    let weightedSum = 0;
-    let totalWeight = 0;
 
-    // Process frequency data with more nuanced analysis
     for (let i = 0; i < bufferLength; i++) {
-      // Calculate approximate frequency this bin represents
-      const frequency = i * (this.audioContext.sampleRate / this.analyzer.fftSize);
-      
-      // Weight frequencies based on human hearing sensitivity
-      // Middle frequencies (1kHz-5kHz) get higher weight as human ear is most sensitive here
-      let weight = 1.0;
-      if (frequency > 1000 && frequency < 5000) {
-        weight = 1.5; // Higher weight for human voice range
-      } else if (frequency < 200) {
-        weight = 1.2; // Slight boost for bass frequencies
-      }
-      
-      // Add to weighted sum
-      weightedSum += dataArray[i] * weight;
-      totalWeight += weight;
-      
-      // Track max amplitude for dominant frequency
+      sum += dataArray[i];
       if (dataArray[i] > maxAmplitude) {
         maxAmplitude = dataArray[i];
         dominantFrequencyBin = i;
       }
-      
-      sum += dataArray[i];
     }
 
-    // Use weighted average for better sensitivity
-    const avgLevel = weightedSum / totalWeight;
-    const normalizedLevel = (avgLevel / 256) * this.config.audioSensitivity; // Apply sensitivity multiplier
+    const avgLevel = sum / bufferLength;
+    const normalizedLevel = avgLevel / 256; // Normalize to 0-1
 
-    // Add to audio history for trend detection (keep last 5 samples)
-    this.audioLevels.push(normalizedLevel);
-    if (this.audioLevels.length > 5) {
-      this.audioLevels.shift();
-    }
-    
-    // Calculate average of recent levels for stability
-    const recentAvg = this.audioLevels.reduce((sum, val) => sum + val, 0) / this.audioLevels.length;
-    
-    // Detect rising audio trend
-    const risingTrend = this.audioLevels.length >= 3 && 
-                       this.audioLevels[this.audioLevels.length-1] > this.audioLevels[this.audioLevels.length-3];
-    
-    // Calculate dominant frequency
-    const dominantFrequency = dominantFrequencyBin * (this.audioContext.sampleRate / this.analyzer.fftSize);
+    // Determine if there was a significant audio spike
+    const threshold = 0.15;
+    if (normalizedLevel > threshold && normalizedLevel > this.lastAudioLevel * 1.5) {
+      // Calculate dominant frequency
+      const dominantFrequency = dominantFrequencyBin * (this.audioContext.sampleRate / (this.analyzer.fftSize * 2));
 
-    // Dynamic threshold based on recent audio history
-    const dynamicThreshold = Math.max(
-      this.config.baseThreshold, 
-      this.lastAudioLevel * 0.8 // 80% of last level is enough (was 1.5x)
-    );
+      // Determine size based on volume
+      const size = 20 + (normalizedLevel * 80);
 
-    // Determine if there was a significant audio input using enhanced detection
-    if ((normalizedLevel > dynamicThreshold) || 
-        (risingTrend && normalizedLevel > this.config.baseThreshold * 2)) {
-        
-      // Determine size based on volume with better scaling
-      const size = 20 + (normalizedLevel * 100); // Increased size multiplier
+      // Plant a new plant at random position
+      const x = Math.random() * this.config.canvasWidth;
+      const y = Math.random() * (this.config.canvasHeight * 0.8) + (this.config.canvasHeight * 0.2);
 
-      // Plant a new plant with distributed positioning
-      // Use dominant frequency to influence position for more interesting patterns
-      const frequencyFactor = dominantFrequency / 2000; // Normalize to 0-1 range for mid frequencies
-      const xPosition = (0.3 + (frequencyFactor * 0.4)) * this.config.canvasWidth;
-      const yPosition = Math.random() * (this.config.canvasHeight * 0.8) + (this.config.canvasHeight * 0.2);
-
-      this.addPlant(xPosition, yPosition, size, dominantFrequency);
+      this.addPlant(x, y, size, dominantFrequency);
     }
 
-    // Update last audio level with some smoothing
-    this.lastAudioLevel = normalizedLevel * 0.7 + this.lastAudioLevel * 0.3;
+    this.lastAudioLevel = normalizedLevel;
 
     // Continue monitoring
     requestAnimationFrame(() => this.monitorAudio());
@@ -273,7 +212,7 @@ const AudioGarden = {
     const newB = Math.max(0, Math.min(255, b + (Math.random() * variance) - (variance / 2)));
 
     // Convert back to hex
-    return `#${Math.floor(newR).toString(16).padStart(2, '0')}${Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
+    return `#<span class="math-inline">\{Math\.floor\(newR\)\.toString\(16\)\.padStart\(2, '0'\)\}</span>{Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
   },
 
   // Animation loop
