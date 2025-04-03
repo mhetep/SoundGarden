@@ -131,7 +131,7 @@ const AudioGarden = {
   
       // Determine if there was a significant audio spike
       const threshold = 0.15;
-      if (normalizedLevel > threshold && normalizedLevel > this.lastAudioLevel * 1.5) {
+      if (normalizedLevel > threshold && normalizedLevel > this.lastAudioLevel * 0.5) {
         // Calculate dominant frequency
         const dominantFrequency = dominantFrequencyBin * (this.audioContext.sampleRate / (this.analyzer.fftSize * 2));
   
