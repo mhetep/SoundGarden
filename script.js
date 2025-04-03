@@ -33,6 +33,39 @@ const AudioGarden = {
       { name: 'cactus', minFreq: 2501, maxFreq: 20000, color: '#06D6A0' } // Adjusted cactus range
     ],
 
+    // Rainbow colors for flowers
+  flowerColors: [
+    '#FF0000', // Red
+    '#FF4500', // OrangeRed
+    '#FF8C00', // DarkOrange
+    '#FFD700', // Gold
+    '#ADFF2F', // GreenYellow
+    '#32CD32', // LimeGreen
+    '#00FFFF', // Cyan
+    '#1E90FF', // DodgerBlue
+    '#0000FF', // Blue
+    '#8A2BE2', // BlueViolet
+    '#9400D3', // DarkViolet
+    '#FF00FF', // Magenta
+    '#FF1493', // DeepPink
+    '#FF69B4', // HotPink
+    '#FFB6C1'  // LightPink
+  ],
+  
+  // Additional bright colors for flower petals
+  petalColors: [
+    '#FF3366', // Bright Pink
+    '#33FF66', // Bright Green
+    '#6633FF', // Bright Purple
+    '#FFCC33', // Bright Yellow
+    '#33CCFF', // Bright Blue
+    '#FF6633', // Bright Orange
+    '#FF33CC', // Bright Magenta
+    '#CCFF33', // Bright Lime
+    '#33FFCC', // Bright Aqua
+    '#CC33FF'  // Bright Violet
+  ],
+
   // Initialize the garden
   init: function() {
     // Create canvas
