@@ -287,7 +287,7 @@ const AudioGarden = {
     // Flower center
     ctx.beginPath();
     ctx.arc(plant.x, plant.y - size * 0.8, size * 0.2, 0, Math.PI * 2);
-    ctx.fillStyle = '#FF6B6B';
+    ctx.fillStyle = '#FF6B6B', '#ff9999';
     ctx.fill();
 
     // Petals
