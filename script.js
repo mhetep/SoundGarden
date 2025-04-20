@@ -156,6 +156,18 @@ const AudioGarden = {
     if (this.plants.length >= this.config.maxPlants) {
       // Remove oldest plant if at capacity
       this.plants.shift();
+      if (plantType.name === 'bush') {
+        plant.clusters = [];
+        const clusterCount = 5;
+        for (let i = 0; i < clusterCount; i++) {
+          plant.clusters.push({
+            offsetX: (Math.random() - 0.5) * size * 0.6,
+            offsetY: (Math.random() - 0.8) * size * 0.6,
+            clusterSize: size * (0.3 + Math.random() * 0.2)
+          });
+        }
+      }
+      
     }
 
     // Find plant type based on frequency
@@ -322,6 +334,14 @@ const baseHue = (plant.age * 30) % 360; // Rotate 30° per unit of age
   drawBush: function(plant) {
     const ctx = this.ctx;
     const size = plant.currentSize;
+    // Foliage clusters
+plant.clusters.forEach(cluster => {
+  ctx.beginPath();
+  ctx.arc(plant.x + cluster.offsetX, plant.y - size * 0.5 + cluster.offsetY, cluster.clusterSize, 0, Math.PI * 2);
+  ctx.fillStyle = plant.color;
+  ctx.fill();
+});
+
 
     // Stem/trunk
     ctx.beginPath();
