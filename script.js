@@ -275,6 +275,8 @@ const AudioGarden = {
     const ctx = this.ctx;
     let size = plant.currentSize;
     size *= 1.15;
+    // Inside drawFlower
+const baseHue = (plant.age * 30) % 360; // Rotate 30° per unit of age
 
     // Stem
     ctx.beginPath();
