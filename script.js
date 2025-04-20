@@ -302,6 +302,7 @@ const baseHue = (plant.age * 30) % 360; // Rotate 30° per unit of age
       ctx.beginPath();
       ctx.arc(petalX, petalY, size * 0.25, 0, Math.PI * 2);
       ctx.fillStyle = plant.color;
+      ctx.fillStyle = `hsl(${baseHue}, 70%, 60%)`;
       ctx.fill();
     }
 
