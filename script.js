@@ -275,6 +275,7 @@ const drawY = plant.y + bobbingOffset;
     }
   },
 
+
   // Draw flower
   drawFlower: function(plant) {
     const ctx = this.ctx;
