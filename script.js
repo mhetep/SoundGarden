@@ -235,6 +235,11 @@ const AudioGarden = {
         plant.currentSize += plant.growthRate;
         if (plant.currentSize > plant.targetSize) {
           plant.currentSize = plant.targetSize;
+          // Add bobbing effect
+const bobbingOffset = Math.sin(plant.age * 2) * 3;
+const drawX = plant.x;
+const drawY = plant.y + bobbingOffset;
+
         }
       }
 
