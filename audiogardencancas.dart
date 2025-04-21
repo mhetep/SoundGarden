@@ -4,6 +4,7 @@ let mic;
 let canvas;
 
 let plants = [];
+let particles = [];
 let baseHue = 120;
 
 function setup() {
@@ -13,10 +14,15 @@ function setup() {
 
   colorMode(HSL, 360, 100, 100, 1);
   noStroke();
+
+  // Create floating particles
+  for (let i = 0; i < 80; i++) {
+    particles.push(new Particle());
+  }
 }
 
 function draw() {
-  background(210, 50, 15);
+  background(210, 50, 15, 0.2); // transparent background for trails
 
   let vol = mic.getLevel();
   let freq = vol * 5000;
@@ -35,6 +41,15 @@ function draw() {
   for (let plant of plants) {
     plant.display();
   }
+
+  // Draw floating particles
+  for (let p of particles) {
+    p.update();
+    p.display();
+  }
+
+  // Draw fog overlay
+  drawFog();
 }
 
 class Plant {
@@ -51,11 +66,11 @@ class Plant {
     const b = parseInt(baseColor.substring(5, 7), 16);
 
     const variance = 30;
-    const newR = Math.max(0, Math.min(255, r + (Math.random() * variance) - (variance / 2)));
-    const newG = Math.max(0, Math.min(255, g + (Math.random() * variance) - (variance / 2)));
-    const newB = Math.max(0, Math.min(255, b + (Math.random() * variance) - (variance / 2)));
+    const newR = constrain(r + random(-variance / 2, variance / 2), 0, 255);
+    const newG = constrain(g + random(-variance / 2, variance / 2), 0, 255);
+    const newB = constrain(b + random(-variance / 2, variance / 2), 0, 255);
 
-    return `#${Math.floor(newR).toString(16).padStart(2, '0')}${Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
+    return `#${hex(newR, 2)}${hex(newG, 2)}${hex(newB, 2)}`;
   }
 
   hueToHex(hue) {
@@ -88,7 +103,7 @@ class Plant {
       let angle = i * angleStep;
       let px = this.x + cos(angle) * 20;
       let py = this.y + sin(angle) * 20;
-      fill(`hsl(${baseHue}, 70%, 60%)`);
+      fill(baseHue, 70, 60);
       ellipse(px, py, 20, 30);
     }
 
@@ -102,6 +117,42 @@ class Plant {
 
     fill(30, 80, 20);
     rect(this.x - 5, this.y, 10, 40);
+  }
+}
+
+class Particle {
+  constructor() {
+    this.x = random(width);
+    this.y = random(height);
+    this.size = random(2, 5);
+    this.speedX = random(-0.5, 0.5);
+    this.speedY = random(-0.5, 0.5);
+    this.alpha = random(0.05, 0.15);
+  }
+
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+
+    if (this.x < 0) this.x = width;
+    if (this.x > width) this.x = 0;
+    if (this.y < 0) this.y = height;
+    if (this.y > height) this.y = 0;
+  }
+
+  display() {
+    fill(0, 0, 100, this.alpha);
+    ellipse(this.x, this.y, this.size);
+  }
+}
+
+function drawFog() {
+  noStroke();
+  for (let i = 0; i < 3; i++) {
+    let radius = random(width / 3, width);
+    let alpha = random(0.01, 0.04);
+    fill(0, 0, 100, alpha);
+    ellipse(random(width), random(height), radius);
   }
 }
 
