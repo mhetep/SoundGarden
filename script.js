@@ -328,6 +328,18 @@ const baseHue = (plant.age * 30) % 360; // Rotate 30° per unit of age
   drawBush: function(plant) {
     const ctx = this.ctx;
     const size = plant.currentSize;
+    if (plantType.name === 'bush') {
+      plant.clusters = [];
+      const clusterCount = 5;
+      for (let i = 0; i < clusterCount; i++) {
+        plant.clusters.push({
+          offsetX: (Math.random() - 0.5) * size * 0.6,
+          offsetY: (Math.random() - 0.8) * size * 0.6,
+          clusterSize: size * (0.3 + Math.random() * 0.2)
+        });
+      }
+    }
+    
 
     // Stem/trunk
     ctx.beginPath();
