@@ -35,3 +35,74 @@
   <script src="script.js"></script>
 </body>
 </html>
+<script>
+  // --- Twinkle Particles ---
+  const numParticles = 100; // Number of particles
+  const particles = [];
+
+  // Function to create a particle
+  function createParticle() {
+      return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 4 + 2, // Random size between 2 and 6
+          color: `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`, // Random opacity
+          opacity: 0,
+          fadeSpeed: 0.02 + Math.random() * 0.03, // Vary fade speed slightly
+          twinkleSpeed: 0.03 + Math.random() * 0.05, // Vary twinkle speed
+          directionX: Math.random() * 0.8 - 0.4, // Random horizontal direction
+          directionY: Math.random() * 0.8 - 0.4, // Random vertical direction
+      };
+  }
+
+  // Create particles
+  for (let i = 0; i < numParticles; i++) {
+      particles.push(createParticle());
+  }
+
+  // Function to draw particles
+  function drawParticles() {
+      particles.forEach(particle => {
+          // Move particle
+          particle.x += particle.directionX;
+          particle.y += particle.directionY;
+
+          // Wrap around edges
+          if (particle.x < 0) particle.x = canvas.width;
+          if (particle.x > canvas.width) particle.x = 0;
+          if (particle.y < 0) particle.y = canvas.height;
+          if (particle.y > canvas.height) particle.y = 0;
+
+          // Twinkle effect
+          particle.opacity += particle.twinkleSpeed;
+          if (particle.opacity >= 1) {
+              particle.twinkleSpeed *= -1;
+              particle.opacity = 1;
+          } else if (particle.opacity <= 0) {
+              particle.twinkleSpeed *= -1;
+              particle.opacity = 0;
+          }
+
+          // Draw particle
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size / 2, 0, Math.PI * 2);
+          ctx.fillStyle = particle.color;
+          ctx.globalAlpha = particle.opacity;
+          ctx.fill();
+          ctx.closePath();
+          ctx.globalAlpha = 1; // Reset opacity
+      });
+  }
+
+  // Function to animate
+  function animate() {
+      // Redraw the gradient background every frame to keep it dynamic
+      //ctx.fillStyle = gradient;  <--  You'll need your gradient code here
+      //ctx.fillRect(0, 0, canvas.width, canvas.height); <-- And this line, or similar
+      drawParticles(); // Draw particles
+      requestAnimationFrame(animate);
+  }
+
+  // Start the animation
+  animate();
+</script>
