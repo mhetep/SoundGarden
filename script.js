@@ -23,7 +23,7 @@ const AudioGarden = {
   plantTypes: [
       { name: 'flower', minFreq: 0, maxFreq: 300, color: '#FF6B6B' }, // Increased flower range
       { name: 'bush', minFreq: 301, maxFreq: 600, color: '#4ECDC4' }, // Adjusted bush range
-      { name: 'tree', minFreq: 601, maxFreq: 1100, color: '#6B48FF' }, // Adjusted tree range
+      { name: 'tree', minFreq: 200, maxFreq: 1100, color: '#6B48FF' }, // Adjusted tree range
       { name: 'mushroom', minFreq: 0, maxFreq: 2500, color: '#FFD166' }, // Adjusted mushroom range
       { name: 'cactus', minFreq: 0, maxFreq: 20000, color: '#06D6A0' } // Adjusted cactus range
     ],
