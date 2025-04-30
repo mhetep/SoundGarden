@@ -18,6 +18,8 @@ const AudioGarden = {
   plants: [],
   isListening: false,
   lastAudioLevel: 0,
+  sensitivityMultiplier: 5.0, // Added multiplier to boost sensitivity
+  quietPeriodCounter: 0, // Added to track quiet periods
 
   // Plant types based on frequency ranges
   plantTypes: [
@@ -87,14 +89,16 @@ const AudioGarden = {
         // Create analyzer
         this.analyzer = this.audioContext.createAnalyser();
         this.analyzer.fftSize = 2048;
-
+        // Increase sensitivity by setting a lower smoothingTimeConstant
+        this.analyzer.smoothingTimeConstant = 0.6;  // Default is 0.8, lower value = more responsive
+        
         // Create microphone source
         this.microphone = this.audioContext.createMediaStreamSource(stream);
         this.microphone.connect(this.analyzer);
 
         // Start monitoring audio
         this.isListening = true;
-        document.getElementById('statusMessage').textContent = 'Listening to your sounds...';
+        document.getElementById('statusMessage').textContent = 'Listening to your sounds... (Extra sensitive mode)';
         document.getElementById('startButton').textContent = 'Listening...';
         this.monitorAudio();
       })
@@ -118,31 +122,56 @@ const AudioGarden = {
     let dominantFrequencyBin = 0;
     let maxAmplitude = 0;
 
-    for (let i = 0; i < bufferLength; i++) {
-      sum += dataArray[i];
-      if (dataArray[i] > maxAmplitude) {
-        maxAmplitude = dataArray[i];
+    // Focus on the lower 25% of frequencies which are more common in human voice and ambient sounds
+    const analyzedLength = Math.floor(bufferLength * 0.25);
+    for (let i = 0; i < analyzedLength; i++) {
+      // Apply sensitivity multiplier to each frequency bin
+      const amplifiedValue = dataArray[i] * this.sensitivityMultiplier;
+      sum += amplifiedValue;
+      if (amplifiedValue > maxAmplitude) {
+        maxAmplitude = amplifiedValue;
         dominantFrequencyBin = i;
       }
     }
 
-    const avgLevel = sum / bufferLength;
-    const normalizedLevel = avgLevel / 256; // Normalize to 0-1
+    const avgLevel = sum / analyzedLength;
+    const normalizedLevel = Math.min(1.0, avgLevel / 256); // Normalize to 0-1 but cap at 1.0
 
     // Determine if there was a significant audio spike
-    const threshold = 0.15;
-    if (normalizedLevel > threshold && normalizedLevel > this.lastAudioLevel * 1.5) {
+    // Much lower threshold for detecting sound
+    const threshold = 0.03; // Lowered from 0.15 to 0.03
+    
+    // Also reduce the spike detection multiplier to make it easier to trigger
+    if (normalizedLevel > threshold && normalizedLevel > this.lastAudioLevel * 1.2) {
       // Calculate dominant frequency
       const dominantFrequency = dominantFrequencyBin * (this.audioContext.sampleRate / (this.analyzer.fftSize * 2));
 
-      // Determine size based on volume
-      const size = 20 + (normalizedLevel * 80);
+      // Determine size based on volume, but ensure even quiet sounds produce visible plants
+      const size = 15 + (normalizedLevel * 80); // Base size of 15 even for very quiet sounds
 
       // Plant a new plant at random position
       const x = Math.random() * this.config.canvasWidth;
       const y = Math.random() * (this.config.canvasHeight * 0.8) + (this.config.canvasHeight * 0.2);
 
       this.addPlant(x, y, size, dominantFrequency);
+      
+      // Reset quiet period counter when a sound is detected
+      this.quietPeriodCounter = 0;
+    } else {
+      // Increment quiet period counter
+      this.quietPeriodCounter++;
+      
+      // If we've been quiet for a while, occasionally plant something anyway
+      // This creates ambient growth even in near-silence
+      if (this.quietPeriodCounter > 50 && Math.random() < 0.05) {
+        const size = 10 + (Math.random() * 10); // Small random size
+        const x = Math.random() * this.config.canvasWidth;
+        const y = Math.random() * (this.config.canvasHeight * 0.8) + (this.config.canvasHeight * 0.2);
+        const randomFrequency = Math.random() * 500; // Random low frequency
+        
+        this.addPlant(x, y, size, randomFrequency);
+        this.quietPeriodCounter = 0;
+      }
     }
 
     this.lastAudioLevel = normalizedLevel;
@@ -212,7 +241,7 @@ const AudioGarden = {
     const newB = Math.max(0, Math.min(255, b + (Math.random() * variance) - (variance / 2)));
 
     // Convert back to hex
-    return `#<span class="math-inline">\{Math\.floor\(newR\)\.toString\(16\)\.padStart\(2, '0'\)\}</span>{Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
+    return `#${Math.floor(newR).toString(16).padStart(2, '0')}${Math.floor(newG).toString(16).padStart(2, '0')}${Math.floor(newB).toString(16).padStart(2, '0')}`;
   },
 
   // Animation loop
@@ -235,13 +264,13 @@ const AudioGarden = {
         plant.currentSize += plant.growthRate;
         if (plant.currentSize > plant.targetSize) {
           plant.currentSize = plant.targetSize;
-          // Add bobbing effect
-const bobbingOffset = Math.sin(plant.age * 2) * 3;
-const drawX = plant.x;
-const drawY = plant.y + bobbingOffset;
-
         }
       }
+
+      // Add bobbing effect
+      const bobbingOffset = Math.sin(plant.age * 2) * 3;
+      const drawX = plant.x;
+      const drawY = plant.y + bobbingOffset;
 
       // Age plants
       plant.age += 0.01;
@@ -282,7 +311,7 @@ const drawY = plant.y + bobbingOffset;
     let size = plant.currentSize;
     size *= 1.15;
     // Inside drawFlower
-const baseHue = (plant.age * 30) % 360; // Rotate 30° per unit of age
+    const baseHue = (plant.age * 30) % 360; // Rotate 30° per unit of age
 
     // Stem
     ctx.beginPath();
